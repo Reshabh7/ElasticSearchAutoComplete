@@ -137,21 +137,20 @@ function queryObject(val, partialQueryString, fuzzyQueryString, filter = []) {
 app.get("/search/:term", function (req, res) {
   let val = req.params.term;
   let list = [];
+  // Recipe.esSearch(
+  //   queryObject(val, `*${val}*`), { hydrate: false }, function (err, results) {
+  //     results.hits.hits.map((each) => {
+  //       list.push(each._source.name);
+  //     });
+
+  // console.log(results.hits.total);
   Recipe.esSearch(
-    queryObject(val, `*${val}*`), { hydrate: false }, function (err, results) {
+    queryObject(val, undefined, `${val}~`), { hydrate: false }, function (err, results) {
       results.hits.hits.map((each) => {
         list.push(each._source.name);
       });
-
-      console.log(results.hits.total);
-      Recipe.esSearch(
-        queryObject(val, undefined, `${val}~`), { hydrate: false }, function (err, results) {
-          results.hits.hits.map((each) => {
-            list.push(each._source.name);
-          });
-          console.log("Fuzzy hits: " + results.hits.total);
-          res.send(list);
-        });
+      console.log("Fuzzy hits: " + results.hits.total);
+      res.send(list);
     });
 });
 
@@ -168,26 +167,16 @@ app.get("/filter/:term", function (req, res) {
     })
   });
   let list = [];
+
   Recipe.esSearch(
-    queryObject(val, `*${val}*`, undefined, [
+    queryObject(val, undefined, `${val}~`, [
       { terms: { ingredients: options } },
-    ]),
-    { hydrate: false },
-    function (err, results) {
+    ]), { hydrate: false }, function (err, results) {
       results.hits.hits.map((each) => {
         list.push(each._source.name);
       });
-      console.log(results.hits.total);
-      Recipe.esSearch(
-        queryObject(val, undefined, `${val}~`, [
-          { terms: { ingredients: options } },
-        ]), { hydrate: false }, function (err, results) {
-          results.hits.hits.map((each) => {
-            list.push(each._source.name);
-          });
-          console.log("Fuzzy hits: " + results.hits.total);
-          res.send(list);
-        });
+      console.log("Fuzzy hits: " + results.hits.total);
+      res.send(list);
     });
 });
 
