@@ -23,22 +23,34 @@ let recipeSchema = new Schema({
         es_type: 'text'
     },
     url: {
-        type: String
+        type: String,
+        es_indexed: true,
+        es_type: 'String'
     },
     image: {
-        type: String
+        type: String,
+        es_indexed: true,
+        es_type: 'String'
     },
     cookTime: {
-        type: String
+        type: String,
+        es_indexed: true,
+        es_type: 'String'
     },
     recipeYield: {
-        type: String
+        type: String,
+        es_indexed: true,
+        es_type: 'String'
     },
     prepTime: {
-        type: String
+        type: String,
+        es_indexed: true,
+        es_type: 'String'
     },
     description: {
-        type: String
+        type: String,
+        es_indexed: true,
+        es_type: 'String'
     }
 });
 
@@ -46,14 +58,21 @@ const esClient = new elasticsearch.Client({ host: 'localhost:9200' });
 recipeSchema.plugin(mongoosastic, { esClient: esClient });
 
 let Recipe = mongoose.model("Recipes", recipeSchema);
-let val = 'Ginger';
 let list = [];
-Recipe.esSearch({}
+Recipe.esSearch({
+    "query": {
+        "match": {
+            "name": "Pasta"
+        }
+    }
+}
     , function (err, results) {
-        results.hits.hits.map((each) => {
-            list.push(each._source.name);
-        });
-        console.log("Fuzzy hits: " + results.hits.total, list);
+        console.log(results)
+
+        // results.hits.hits.map((each) => {
+        //     list.push(each._source.name);
+        // });
+        // console.log("Fuzzy hits: " + results.hits.total, list);
         if (err) {
             console.log(err)
         }
