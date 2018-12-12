@@ -77,3 +77,26 @@ Recipe.esSearch({
             console.log(err)
         }
     });
+
+Recipe.esSearch({
+    "query": {
+        "filtered": {
+            "query": {
+                "query_string": {
+                    "query": "*Ginger*",
+                    "default_operator": "OR",
+                    "fields": ["name"]
+                }
+            },
+            "filter": {
+                "bool": {
+                    "must": [
+                        { "term": { "ingredient": "Grapefruit" } },
+                        { "term": { "recipeYield": "Serves 10" } },
+                        { "term": { "decription": "curd" } }
+                    ]
+                }
+            }
+        }
+    }
+});
